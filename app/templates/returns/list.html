@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Sale Returns - VIDYUT{% endblock %}
+{% block page_title %}Sale Returns{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="panel-title mb-1">Customer Returns</h2>
+      <p class="panel-subtitle mb-0">Process refunds and adjust stock</p>
+    </div>
+    <a href="{{ url_for('returns.process_return') }}" class="btn-quick-primary" style="width:auto; padding: 10px 20px;">
+      <i class="fa-solid fa-rotate-left"></i> Process New Return
+    </a>
+  </div>
+
+  <div class="card-panel">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Original Invoice</th>
+            <th>Reason</th>
+            <th>Refund Amount</th>
+            <th>Processed By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ret in returns %}
+          <tr>
+            <td>{{ ret.return_date.strftime('%d %b %Y, %I:%M %p') }}</td>
+            <td><span class="badge bg-secondary">{{ ret.original_sale.invoice_no }}</span></td>
+            <td>{{ ret.reason or 'N/A' }}</td>
+            <td class="fw-bold text-danger">- ₹{{ "%.2f"|format(ret.total_refund_amount) }}</td>
+            <td>User #{{ ret.processed_by }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No returns processed yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

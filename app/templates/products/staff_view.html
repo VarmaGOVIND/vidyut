@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Products - VIDYUT{% endblock %}
+{% block page_title %}Products{% endblock %}
+{% block content %}
+
+{% if mode == 'categories' %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="panel-title mb-1">Product Categories</h2>
+    <p class="panel-subtitle mb-0">Select a category to view products</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  {% for cat in categories %}
+  <div class="col-12 col-md-6 col-lg-4">
+    <a href="{{ url_for('products.staff_product_view', category=cat.name) }}" class="card-panel text-decoration-none" style="display: block;">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <h5 class="fw-bold mb-0">{{ cat.name }}</h5>
+        <span class="badge bg-primary fs-6">{{ cat.count }}</span>
+      </div>
+      {% if cat.low_stock > 0 %}
+      <span class="badge bg-warning text-dark mt-2">{{ cat.low_stock }} Low Stock</span>
+      {% endif %}
+    </a>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <div class="card-panel text-center py-5">
+      <i class="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
+      <p class="text-muted">No categories found.</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <a href="{{ url_for('products.staff_product_view') }}" class="text-decoration-none text-muted mb-2 d-inline-block" style="font-size: 14px;">
+      <i class="fa-solid fa-arrow-left"></i> Back to Categories
+    </a>
+    <h2 class="panel-title mb-1">{{ current_category }} Products</h2>
+    <p class="panel-subtitle mb-0">View inventory items</p>
+  </div>
+</div>
+
+<div class="card-panel">
+  <div class="table-responsive">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Selling Price</th>
+          <th>Stock</th>
+          <th>Expiry Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td><span class="sku-badge">{{ product.sku }}</span></td>
+          <td class="fw-bold">{{ product.name }}</td>
+          <td>{{ product.category }}</td>
+          <td>₹{{ "%.2f"|format(product.selling_price) }}</td>
+          <td>
+            <span class="{% if product.stock <= product.min_stock %}text-danger fw-bold{% else %}text-success{% endif %}">
+              {{ product.stock }}
+            </span>
+          </td>
+          <td>
+            {% if product.expiry_date %}
+              {% if product.expiry_date < today %}
+                <span class="badge bg-danger">Expired!</span>
+              {% elif product.expiry_date < expiry_soon %}
+                <span class="badge bg-warning text-dark">Expiring in {{ (product.expiry_date - today).days }} days</span>
+              {% else %}
+                <span class="badge bg-secondary">{{ product.expiry_date.strftime('%d %b %Y') }}</span>
+              {% endif %}
+            {% else %}
+              <span class="text-muted">N/A</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if product.stock <= product.min_stock %}
+              <span class="status-badge badge-red">Low Stock</span>
+            {% else %}
+              <span class="status-badge badge-green">In Stock</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">No products found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

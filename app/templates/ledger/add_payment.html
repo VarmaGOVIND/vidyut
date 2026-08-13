@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Record Payment - VIDYUT{% endblock %}
+{% block page_title %}Record Supplier Payment{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card-panel">
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Select Supplier</label>
+            <select name="supplier_id" class="form-control-custom" required>
+              <option value="">-- Choose Supplier --</option>
+              {% for s in suppliers %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Amount (₹)</label>
+            <input type="number" name="amount" class="form-control-custom" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Payment Date</label>
+            <input type="date" name="payment_date" class="form-control-custom" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Payment Method</label>
+            <select name="method" class="form-control-custom">
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Cheque">Cheque</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Note (Optional)</label>
+            <textarea name="note" class="form-control-custom" rows="2"></textarea>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn-quick-primary flex-grow-1">Record Payment</button>
+            <a href="{{ url_for('ledger.ledger_dashboard') }}" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Add Customer - VIDYUT{% endblock %}
+{% block page_title %}Add New Customer{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card-panel">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Customer Name</label>
+                    <input type="text" name="name" class="form-control-custom" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Phone Number</label>
+                    <input type="text" name="phone" class="form-control-custom" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Email</label>
+                    <input type="email" name="email" class="form-control-custom">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Address</label>
+                    <textarea name="address" class="form-control-custom" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Opening Balance (₹)</label>
+                    <input type="number" name="opening_balance" class="form-control-custom" step="0.01" value="0">
+                    <small class="text-muted">Enter positive amount if customer owes you.</small>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn-quick-primary flex-grow-1">Save Customer</button>
+                    <a href="{{ url_for('customers.customer_list') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

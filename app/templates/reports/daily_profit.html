@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Daily Profit Report - VIDYUT{% endblock %}
+{% block page_title %}Daily Profit Report{% endblock %}
+{% block content %}
+  <div class="card-panel mb-4">
+    <form method="POST" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label fw-bold">From Date</label>
+        <input type="date" name="from_date" class="form-control" value="{{ from_date }}" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-bold">To Date</label>
+        <input type="date" name="to_date" class="form-control" value="{{ to_date }}" required>
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn-quick-primary w-100">Filter Report</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card-panel text-center">
+        <h6 class="text-muted mb-1">Total Sales</h6>
+        <h3 class="fw-bold text-success mb-0">₹{{ "%.2f"|format(total_sales_revenue) }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card-panel text-center">
+        <h6 class="text-muted mb-1">Returns</h6>
+        <h3 class="fw-bold text-danger mb-0">- ₹{{ "%.2f"|format(total_returns) }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card-panel text-center">
+        <h6 class="text-muted mb-1">Expenses</h6>
+        <h3 class="fw-bold text-warning mb-0">- ₹{{ "%.2f"|format(total_expenses) }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card-panel text-center">
+        <h6 class="text-muted mb-1">Net Revenue</h6>
+        <h3 class="fw-bold text-primary mb-0">₹{{ "%.2f"|format(net_revenue) }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-panel">
+    <h4 class="fw-bold mb-3">Complete Transaction Timeline</h4>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Type</th>
+            <th>Invoice / Details</th>
+            <th>Amount</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in timeline %}
+          <tr>
+            <td>{{ item.datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
+            <td>
+              {% if item.type == 'sale' %}
+                <span class="badge bg-success">Sale</span>
+              {% elif item.type == 'return' %}
+                <span class="badge bg-danger">Return</span>
+              {% elif item.type == 'expense' %}
+                <span class="badge bg-warning text-dark">Expense</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.type == 'sale' %}
+                <strong>{{ item.invoice }}</strong><br>
+                <small class="text-muted">{{ item.customer }}</small>
+              {% elif item.type == 'return' %}
+                <strong>{{ item.product }}</strong><br>
+                <small class="text-muted">From: {{ item.invoice }}</small>
+              {% elif item.type == 'expense' %}
+                <strong>{{ item.category }}</strong><br>
+                <small class="text-muted">{{ item.description }}</small>
+              {% endif %}
+            </td>
+            <td class="fw-bold {% if item.type == 'sale' %}text-success{% elif item.type == 'return' %}text-danger{% elif item.type == 'expense' %}text-warning{% endif %}">
+              {% if item.type == 'sale' %}
+                + ₹{{ "%.2f"|format(item.amount) }}
+              {% elif item.type == 'return' %}
+                - ₹{{ "%.2f"|format(item.amount) }}
+              {% elif item.type == 'expense' %}
+                - ₹{{ "%.2f"|format(item.amount) }}
+              {% endif %}
+            </td>
+            <td>
+              {% if item.type == 'return' %}
+                Reason: {{ item.reason }}
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center text-muted py-4">No transactions found for this period.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Add Staff - VIDYUT{% endblock %}
+{% block page_title %}Add Staff{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card-panel">
+      <h2 class="panel-title mb-3">Add New Staff Member</h2>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Username</label>
+          <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Email</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Password</label>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 fw-bold">
+          <i class="fa-solid fa-user-plus"></i> Add Staff
+        </button>
+      </form>
+      <a href="{{ url_for('staff.staff_list') }}" class="btn btn-secondary w-100 mt-2">
+        <i class="fa-solid fa-arrow-left"></i> Back to List
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Import Products - VIDYUT{% endblock %}
+
+{% block page_title %}Import Products{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fa-solid fa-upload"></i> Upload Excel File</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Select Excel/CSV File</label>
+                        <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                        <small class="text-muted">Supported formats: .xlsx, .xls, .csv</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <a href="{{ url_for('import_products.download_template') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-download"></i> Download Template
+                        </a>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-upload"></i> Import Products
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ol class="list-unstyled">
+                    <li class="mb-2">1. Download template file</li>
+                    <li class="mb-2">2. Fill product details in Excel</li>
+                    <li class="mb-2">3. Upload the file</li>
+                    <li class="mb-2">4. System will validate and import</li>
+                </ol>
+                <hr>
+                <p class="text-muted small">
+                    <strong>Required columns:</strong> name, category, cost_price, selling_price, stock<br>
+                    <strong>Optional:</strong> min_stock, expiry_date
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

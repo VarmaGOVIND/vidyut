@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Add Expense - VIDYUT{% endblock %}
+{% block page_title %}Add New Expense{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card-panel">
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Category</label>
+            <select name="category" class="form-control-custom" required>
+              <option value="Rent">Rent / Kiraya</option>
+              <option value="Electricity">Electricity / Bijli</option>
+              <option value="Salary">Staff Salary</option>
+              <option value="Transport">Transport / Delivery</option>
+              <option value="Food & Tea">Food & Tea</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Amount (₹)</label>
+            <input type="number" name="amount" class="form-control-custom" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Date</label>
+            <input type="date" name="expense_date" class="form-control-custom" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Description (Optional)</label>
+            <textarea name="description" class="form-control-custom" rows="2"></textarea>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn-quick-primary flex-grow-1">Save Expense</button>
+            <a href="{{ url_for('expenses.expense_list') }}" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

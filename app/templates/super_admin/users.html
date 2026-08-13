@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}All Users - Super Admin{% endblock %}
+
+{% block page_title %}All Users{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5>All Users</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Shop</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.is_super_admin %}
+                                <span class="badge bg-danger">Super Admin</span>
+                            {% elif user.is_admin %}
+                                <span class="badge bg-primary">Shop Admin</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Staff</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.shop_working.shop_name if user.shop_working else 'N/A' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                                {{ 'Active' if user.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

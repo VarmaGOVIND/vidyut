@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Reports - VIDYUT{% endblock %}
+{% block page_title %}Sales Reports & History{% endblock %}
+
+{% block content %}
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-4">
+      <div class="card-panel stat-card h-100">
+        <div class="stat-icon bg-blue-soft"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">₹{{ "%.2f"|format(total_revenue) }}</div>
+        <div class="stat-sub">Lifetime sales value</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card-panel stat-card h-100">
+        <div class="stat-icon bg-green-soft"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="stat-label">Total Profit</div>
+        <div class="stat-value">₹{{ "%.2f"|format(total_profit) }}</div>
+        <div class="stat-sub">Revenue minus cost</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card-panel stat-card h-100">
+        <div class="stat-icon bg-amber-soft"><i class="fa-solid fa-receipt"></i></div>
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value">{{ total_orders }}</div>
+        <div class="stat-sub">Invoices generated</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-panel">
+    <div class="panel-title mb-3">Invoice History</div>
+    <div class="table-responsive">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th>Invoice No</th>
+            <th>Date & Time</th>
+            <th>Items</th>
+            <th>Total Amount</th>
+            <th>Profit</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sale in sales %}
+          <tr>
+            <td class="fw-bold">{{ sale.invoice_no }}</td>
+            <td>{{ sale.created_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+            <td>{{ sale.items|length }} items</td>
+            <td class="fw-bold">₹{{ "%.2f"|format(sale.total_amount) }}</td>
+            <td class="text-success fw-bold">₹{{ "%.2f"|format(sale.profit) }}</td>
+            <td>
+              <a href="{{ url_for('billing.view_invoice', invoice_id=sale.invoice_no) }}" target="_blank" class="action-btn edit-btn" title="View/Print">
+                <i class="fa-solid fa-print"></i>
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">No sales recorded yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

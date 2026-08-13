@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Record Supplier Refund - VIDYUT{% endblock %}
+{% block page_title %}Record Supplier Refund{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card-panel">
+        <div class="alert alert-info">
+          <i class="fa-solid fa-circle-info"></i> Use this form when a supplier returns money to you (e.g., advance refund).
+        </div>
+        <form method="POST" id="refundForm">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Select Supplier</label>
+            <select name="supplier_id" id="supplierSelect" class="form-control-custom" required>
+              <option value="">-- Choose Supplier --</option>
+              {% for s in suppliers %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div id="refundInfo" style="display:none;">
+            <div class="mb-3">
+              <div class="alert alert-success">
+                <strong>Refund Available:</strong> ₹<span id="refundAmountDisplay">0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Amount Received (₹)</label>
+            <input type="number" name="amount" id="amountInput" class="form-control-custom" step="0.01" required>
+            <small class="text-muted">Enter the amount supplier is returning</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Date</label>
+            <input type="date" name="payment_date" class="form-control-custom" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Method</label>
+            <select name="method" class="form-control-custom">
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Note (Optional)</label>
+            <textarea name="note" class="form-control-custom" rows="2"></textarea>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-warning w-100 fw-bold">Record Refund</button>
+            <a href="{{ url_for('ledger.ledger_dashboard') }}" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('supplierSelect').addEventListener('change', function() {
+      const supplierId = this.value;
+      if (supplierId) {
+        fetch(`/ledger/api/supplier_refund_balance/${supplierId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.refund_due > 0) {
+              
+              document.getElementById('refundInfo').style.display = 'block';
+              document.getElementById('refundAmountDisplay').textContent = data.refund_due.toFixed(2);
+              
+              document.getElementById('amountInput').value = data.refund_due.toFixed(2);
+            } else {
+              
+              document.getElementById('refundInfo').style.display = 'none';
+              document.getElementById('amountInput').value = '';
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching refund balance:', error);
+          });
+      } else {
+        document.getElementById('refundInfo').style.display = 'none';
+        document.getElementById('amountInput').value = '';
+      }
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Payment & Refund History - VIDYUT{% endblock %}
+{% block page_title %}Payment & Refund History{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="panel-title mb-1">Transaction History</h2>
+      <p class="panel-subtitle mb-0">All supplier payments and refunds record</p>
+    </div>
+    <a href="{{ url_for('ledger.ledger_dashboard') }}" class="btn btn-secondary">
+      <i class="fa-solid fa-arrow-left"></i> Back to Ledger
+    </a>
+  </div>
+
+  <div class="card-panel">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Supplier Name</th>
+            <th>Type</th>
+            <th>Method</th>
+            <th>Note</th>
+            <th class="text-end">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+          <tr>
+            <td>{{ t.payment_date.strftime('%d %b %Y, %I:%M %p') }}</td>
+            <td class="fw-bold">{{ t.supplier.name }}</td>
+            <td>
+              {% if t.type == 'Refund' %}
+                <span class="badge bg-success">Refund (Money In)</span>
+              {% else %}
+                <span class="badge bg-danger">Payment (Money Out)</span>
+              {% endif %}
+            </td>
+            <td>{{ t.method }}</td>
+            <td>{{ t.note or '-' }}</td>
+            <td class="text-end fw-bold {% if t.type == 'Refund' %}text-success{% else %}text-danger{% endif %}">
+              {% if t.type == 'Refund' %}+{% else %}-{% endif %} ₹{{ "%.2f"|format(t.amount) }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No payment history found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

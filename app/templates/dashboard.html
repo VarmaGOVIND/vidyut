@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - VIDYUT{% endblock %}
+
+{% block content %}
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <a href="{{ url_for('reports.sale_details', filter_type='today') }}" style="text-decoration:none; color:inherit;">
+        <div class="card-panel stat-card h-100" style="cursor:pointer; transition: transform 0.2s;">
+          <div class="stat-label">Today's Sale</div>
+          <div class="stat-value">{{ "%.2f"|format(today_revenue) }}</div>
+          <div class="stat-sub">{{ today_orders }} Orders - Click for details</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <a href="{{ url_for('reports.profit_details', filter_type='today') }}" style="text-decoration:none; color:inherit;">
+        <div class="card-panel stat-card h-100" style="cursor:pointer; transition: transform 0.2s;">
+          <div class="stat-label">Today's Profit</div>
+          <div class="stat-value text-success">₹{{ "%.2f"|format(today_profit) }}</div>
+          <div class="stat-sub">Net earnings today - Click for details</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <a href="{{ url_for('reports.sale_details', filter_type='all') }}" style="text-decoration:none; color:inherit;">
+        <div class="card-panel stat-card h-100" style="cursor:pointer; transition: transform 0.2s;">
+          <div class="stat-label">Total Sale (Overall)</div>
+          <div class="stat-value">₹{{ "%.2f"|format(total_revenue) }}</div>
+          <div class="stat-sub">All time revenue - Click for details</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <a href="{{ url_for('reports.profit_details', filter_type='all') }}" style="text-decoration:none; color:inherit;">
+        <div class="card-panel stat-card h-100" style="cursor:pointer; transition: transform 0.2s;">
+          <div class="stat-label">Total Profit (Overall)</div>
+          <div class="stat-value text-success">₹{{ "%.2f"|format(total_profit) }}</div>
+          <div class="stat-sub">All time earnings - Click for details</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <a href="{{ url_for('customers.customer_list') }}" style="text-decoration:none; color:inherit;">
+        <div class="card-panel stat-card h-100" style="cursor:pointer; transition: transform 0.2s;">
+          <div class="stat-icon bg-purple-soft"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-label">Total Customers</div>
+          <div class="stat-value">{{ total_customers }}</div>
+          <div class="stat-sub">Active accounts - Click to view</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6">
+      <div class="card-panel" style="border-left: 4px solid #dc3545;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-1">Today's Expenses</h6>
+            <h3 class="fw-bold mb-0 text-danger">₹{{ "%.2f"|format(today_expenses) }}</h3>
+          </div>
+          <i class="fa-solid fa-file-invoice-dollar fa-2x text-danger opacity-50"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="card-panel" style="border-left: 4px solid #198754;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-1">Net Profit (Today)</h6>
+            <h3 class="fw-bold mb-0" style="color: #198754;">₹{{ "%.2f"|format(net_profit) }}</h3>
+          </div>
+          <i class="fa-solid fa-wallet fa-2x text-success opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-section card-panel mb-3">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <a href="?filter=today" class="btn btn-sm {% if filter_type == 'today' %}btn-primary{% else %}btn-outline-primary{% endif %}">Today</a>
+      <a href="?filter=week" class="btn btn-sm {% if filter_type == 'week' %}btn-primary{% else %}btn-outline-primary{% endif %}">Week</a>
+      <a href="?filter=month" class="btn btn-sm {% if filter_type == 'month' %}btn-primary{% else %}btn-outline-primary{% endif %}">Month</a>
+      <a href="?filter=all" class="btn btn-sm {% if filter_type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">All Time</a>
+      
+      <span class="text-muted mx-2">|</span>
+      
+      <form method="GET" action="{{ url_for('main.dashboard') }}" class="d-flex flex-wrap align-items-center gap-2">
+        <label class="text-muted small">From:</label>
+        <input type="date" name="from_date" class="form-control form-control-sm" style="width:150px;" value="{{ from_date }}">
+        <label class="text-muted small">To:</label>
+        <input type="date" name="to_date" class="form-control form-control-sm" style="width:150px;" value="{{ to_date }}">
+        <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-xl-8">
+      <div class="card-panel h-100">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <div>
+            <div class="panel-title">Sales Analytics</div>
+            <div class="panel-subtitle">Revenue vs Orders</div>
+          </div>
+        </div>
+        <div class="chart-box" style="height:230px;">
+          <canvas id="salesChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="d-flex flex-column gap-3 h-100">
+        <div class="card-panel">
+          <div class="panel-title mb-3">Quick Actions</div>
+          <a href="{{ url_for('billing.pos') }}" class="btn-quick-primary mb-2" style="text-decoration:none; display:flex;"><i class="fa-solid fa-plus"></i> New Sale</a>
+          <a href="{{ url_for('products.add_product') }}" class="btn-quick-secondary" style="text-decoration:none; display:flex;"><i class="fa-solid fa-box-open"></i> Add Product</a>
+        </div>
+        <div class="card-panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="panel-title mb-0">System Status</div>
+            <span class="badge-pct badge-green">Online</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Database</span>
+            <span class="s-value text-success">Connected</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Total Products</span>
+            <span class="s-value">{{ chart_orders|length }}+ Items</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6 col-xl-6">
+      <div class="card-panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="panel-title mb-0">Recent Transactions</div>
+          <a href="{{ url_for('reports.sale_details', filter_type='all') }}" class="view-all-link">View all <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i></a>
+        </div>
+        <div id="txnList">
+          {% for sale in recent_sales %}
+          <div class="txn-row">
+            <div class="txn-avatar">{{ sale.customer_name[0]|upper if sale.customer_name else 'W' }}</div>
+            <div class="flex-grow-1">
+              <div class="txn-name">{{ sale.customer_name or 'Walk-in Customer' }}</div>
+              <div class="txn-meta">{{ sale.invoice_no }} · {{ sale.created_at.strftime('%I:%M %p') }}</div>
+            </div>
+            <div>
+              <div class="txn-amount">₹{{ "%.2f"|format(sale.total_amount) }}</div>
+              <span class="status-badge" style="background:#e8f8ee; color:#16a34a;">{{ sale.status }}</span>
+            </div>
+          </div>
+          {% else %}
+          <div class="text-center text-muted py-4">No recent transactions found.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-6">
+      <div class="card-panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="panel-title mb-0">Revenue Chart</div>
+          <span class="panel-subtitle">Selected Period</span>
+        </div>
+        <div class="chart-box" style="height:230px;">
+          <canvas id="weeklyChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chartLabels = {{ chart_labels | tojson }};
+    const chartRevenue = {{ chart_revenue | tojson }};
+    const chartOrders = {{ chart_orders | tojson }};
+
+    if (chartLabels.length > 0) {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    { 
+                        label: 'Revenue', 
+                        data: chartRevenue, 
+                        borderColor: '#2563eb', 
+                        backgroundColor: 'rgba(37,99,235,0.08)', 
+                        fill: true, 
+                        tension: 0.4, 
+                        pointRadius: 3, 
+                        borderWidth: 2.5 
+                    },
+                    { 
+                        label: 'Orders', 
+                        data: chartOrders, 
+                        borderColor: '#16a34a', 
+                        backgroundColor: 'rgba(22,163,74,0.06)', 
+                        fill: false, 
+                        tension: 0.4, 
+                        pointRadius: 3, 
+                        borderWidth: 2 
+                    }
+                ]
+            },
+            options: {
+                responsive: true, 
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { display: true, position: 'top' } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('weeklyChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{ 
+                    label: 'Revenue', 
+                    data: chartRevenue, 
+                    backgroundColor: '#2563eb', 
+                    borderRadius: 6, 
+                    barThickness: 20 
+                }]
+            },
+            options: {
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+                }
+            }
+        });
+    } else {
+        document.querySelectorAll('.chart-box').forEach(el => {
+            el.innerHTML = `<div class="text-center text-muted py-4"><i class="fa-solid fa-chart-simple fa-2x mb-2"></i><p>No sales data available for the selected period.<br>Start billing to see analytics here!</p></div>`;
+        });
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Add Staff - VIDYUT{% endblock %}
+{% block page_title %}Add New Staff{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="card-panel">
+        <form method="POST" action="">
+          {{ form.hidden_tag() }}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label-custom">Username</label>
+              {{ form.username(class="form-control-custom") }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Email Address</label>
+              {{ form.email(class="form-control-custom") }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Shop Name</label>
+              {{ form.shop_name(class="form-control-custom") }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Password</label>
+              {{ form.password(class="form-control-custom") }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Confirm Password</label>
+              {{ form.confirm_password(class="form-control-custom") }}
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            {{ form.submit(class="btn-quick-primary", style="width:auto;") }}
+            <a href="{{ url_for('staff.staff_list') }}" class="btn-quick-secondary" style="width:auto; text-decoration:none;">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Ledger - {{ customer.name }} - VIDYUT{% endblock %}
+{% block page_title %}Customer Ledger: {{ customer.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{{ url_for('customers.customer_list') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i> Back to Customers
+    </a>
+    <button class="btn btn-success" onclick="document.getElementById('paymentForm').style.display='block'">
+        <i class="fa-solid fa-money-bill-wave"></i> Record Payment
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card-panel text-center">
+            <h6 class="text-muted">Opening Balance</h6>
+            <h4>₹{{ "%.2f"|format(customer.opening_balance) }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-panel text-center">
+            <h6 class="text-muted">Total Purchases</h6>
+            <h4 class="text-danger">₹{{ "%.2f"|format(total_sales) }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-panel text-center">
+            <h6 class="text-muted">Total Payments</h6>
+            <h4 class="text-success">₹{{ "%.2f"|format(total_payments) }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-panel text-center">
+            <h6 class="text-muted">Current Balance</h6>
+            <h4 class="fw-bold {% if balance > 0 %}text-danger{% elif balance < 0 %}text-success{% else %}text-muted{% endif %}">
+                ₹{{ "%.2f"|format(balance) }}
+            </h4>
+        </div>
+    </div>
+</div>
+
+<div id="paymentForm" style="display:none;" class="card-panel mb-4">
+    <h5 class="fw-bold mb-3">Record Payment</h5>
+    <form method="POST" action="{{ url_for('customers.add_payment', id=customer.id) }}" class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Amount (₹)</label>
+            <input type="number" name="amount" class="form-control" step="0.01" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Note</label>
+            <input type="text" name="note" class="form-control" placeholder="e.g., Cash payment">
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-success">Save Payment</button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('paymentForm').style.display='none'">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div class="card-panel">
+    <h5 class="fw-bold mb-3">Transaction History</h5>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Invoice / Ref</th>
+                    <th>Amount</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.date.strftime('%d %b %Y, %I:%M %p') }}</td>
+                    <td>
+                        {% if t.type == 'Sale' %}
+                            <span class="badge bg-danger">Sale</span>
+                        {% elif t.type == 'Payment' %}
+                            <span class="badge bg-success">Payment</span>
+                        {% elif t.type == 'Return' %}
+                            <span class="badge bg-warning text-dark">Return</span>
+                        {% elif t.type == 'Opening' %}
+                            <span class="badge bg-secondary">Opening</span>
+                        {% endif %}
+                    </td>
+                    <td>{% if t.sale_id %}#{{ t.sale_id }}{% else %}-{% endif %}</td>
+                    <td class="fw-bold {% if t.type == 'Sale' %}text-danger{% elif t.type == 'Payment' %}text-success{% endif %}">
+                        {% if t.type == 'Sale' %}-{% endif %}₹{{ "%.2f"|format(t.amount) }}
+                    </td>
+                    <td>{{ t.note or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-4">No transactions found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

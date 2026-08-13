@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Supplier Ledger - VIDYUT{% endblock %}
+{% block page_title %}Supplier Ledger{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="panel-title mb-1">Supplier Payments</h2>
+      <p class="panel-subtitle mb-0">Track pending payments and supplier balances</p>
+    </div>
+    <a href="{{ url_for('ledger.add_payment') }}" class="btn-quick-primary" style="width:auto; padding: 10px 20px;">
+      <i class="fa-solid fa-money-bill-wave"></i> Record Payment
+    </a>
+    <a href="{{ url_for('ledger.add_refund') }}" class="btn btn-warning text-dark" style="width:auto; padding: 10px 20px;">
+      <i class="fa-solid fa-rotate-left"></i> Record Refund
+    </a>
+    <a href="{{ url_for('ledger.payment_history') }}" class="btn btn-outline-primary" style="width:auto; padding: 10px 20px;">
+      <i class="fa-solid fa-clock-rotate-left"></i> View History
+    </a>
+  </div>
+
+  <div class="card-panel">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Supplier Name</th>
+            <th>Total Purchased</th>
+            <th>Total Paid</th>
+            <th>Pending Balance</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for data in supplier_data %}
+          <tr>
+            <td class="fw-bold">{{ data.supplier.name }}</td>
+            <td>₹{{ "%.2f"|format(data.total_purchased) }}</td>
+            <td class="text-success">₹{{ "%.2f"|format(data.total_paid) }}</td>
+            <td class="fw-bold {% if data.pending > 0 %}text-danger{% else %}text-success{% endif %}">
+              ₹{{ "%.2f"|format(data.pending) }}
+            </td>
+            <td class="text-end">
+              <a href="{{ url_for('ledger.supplier_statement', supplier_id=data.supplier.id) }}" class="btn btn-sm btn-outline-primary">
+                <i class="fa-solid fa-file-invoice"></i> Statement
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No suppliers found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

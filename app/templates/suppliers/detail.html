@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ supplier.name }} - VIDYUT{% endblock %}
+{% block page_title %}{{ supplier.name }}{% endblock %}
+{% block content %}
+  <div class="mb-4">
+    <a href="{{ url_for('suppliers.supplier_list') }}" class="text-decoration-none text-muted">
+      <i class="fa-solid fa-arrow-left"></i> Back to Suppliers
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card-panel">
+        <h5 class="fw-bold mb-3">Supplier Details</h5>
+        <p><strong>Phone:</strong> {{ supplier.phone or 'N/A' }}</p>
+        <p><strong>Email:</strong> {{ supplier.email or 'N/A' }}</p>
+        <p><strong>GSTIN:</strong> {{ supplier.gstin or 'N/A' }}</p>
+        <p><strong>Address:</strong> {{ supplier.address or 'N/A' }}</p>
+        <a href="{{ url_for('suppliers.edit_supplier', id=supplier.id) }}" class="btn btn-sm btn-outline-primary mt-2">Edit Details</a>
+      </div>
+      <div class="card-panel mt-3">
+        <h5 class="fw-bold mb-3">Quick Actions</h5>
+        <a href="{{ url_for('purchase.add_purchase') }}" class="btn-quick-primary w-100 mb-2">
+          <i class="fa-solid fa-plus"></i> New Purchase from this Supplier
+        </a>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card-panel">
+        <h5 class="fw-bold mb-3">Purchase History from this Supplier</h5>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Invoice</th>
+                <th>Date</th>
+                <th>Items & Rates</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in purchases %}
+              <tr>
+                <td>{{ p.invoice_no or 'N/A' }}</td>
+                <td>{{ p.purchase_date.strftime('%d %b %Y, %I:%M %p') }}</td>
+                <td>
+                  {% for item in p.items %}
+                    <div class="mb-1">
+                      <strong>{{ item.product.name }}</strong> 
+                      <span class="text-muted">(Qty: {{ item.quantity }} @ ₹{{ item.unit_cost }})</span>
+                    </div>
+                  {% endfor %}
+                </td>
+                <td class="fw-bold">₹{{ "%.2f"|format(p.total_amount) }}</td>
+                <td>
+                  <span class="badge {% if p.payment_status == 'Paid' %}bg-success{% elif p.payment_status == 'Partial' %}bg-warning{% else %}bg-danger{% endif %}">
+                    {{ p.payment_status }}
+                  </span>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">No purchases recorded yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

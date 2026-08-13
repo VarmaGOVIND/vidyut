@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}All Staff - Super Admin{% endblock %}
+
+{% block page_title %}All Staff{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5>All Staff</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Shop</th>
+                        <th>Created By</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff_member in staff %}
+                    <tr>
+                        <td>{{ staff_member.id }}</td>
+                        <td>{{ staff_member.username }}</td>
+                        <td>{{ staff_member.email }}</td>
+                        <td>{{ staff_member.shop_working.shop_name if staff_member.shop_working else 'N/A' }}</td>
+                        <td>{{ staff_member.creator.username if staff_member.creator else 'N/A' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if staff_member.is_active else 'danger' }}">
+                                {{ 'Active' if staff_member.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

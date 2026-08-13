@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}All Returns - Super Admin{% endblock %}
+
+{% block page_title %}All Returns{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Sale Returns</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Shop</th>
+                                <th>Refund Amount</th>
+                                <th>Reason</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ret in sale_returns %}
+                            <tr>
+                                <td>{{ ret.original_sale.invoice_no if ret.original_sale else 'N/A' }}</td>
+                                <td>{{ ret.shop.shop_name if ret.shop else 'N/A' }}</td>
+                                <td>₹{{ "%.2f"|format(ret.total_refund_amount) }}</td>
+                                <td>{{ ret.reason or '-' }}</td>
+                                <td>{{ ret.return_date.strftime('%d %b %Y') if ret.return_date else 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Purchase Returns</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Shop</th>
+                                <th>Supplier</th>
+                                <th>Amount</th>
+                                <th>Reason</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ret in purchase_returns %}
+                            <tr>
+                                <td>{{ ret.shop.shop_name if ret.shop else 'N/A' }}</td>
+                                <td>{{ ret.supplier_return.name if ret.supplier_return else 'N/A' }}</td>
+                                <td>₹{{ "%.2f"|format(ret.total_amount) }}</td>
+                                <td>{{ ret.reason or '-' }}</td>
+                                <td>{{ ret.created_at.strftime('%d %b %Y') if ret.created_at else 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

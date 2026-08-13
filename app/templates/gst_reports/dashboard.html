@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}GST Reports - VIDYUT{% endblock %}
+
+{% block page_title %}GST Reports{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Monthly Sales</h5>
+                <h2 class="display-4">₹{{ "%.2f"|format(monthly_sales.total or 0) }}</h2>
+                <small>{{ monthly_sales.count or 0 }} orders this month</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Products by GST Rate</h5>
+                <div>
+                    {% for rate, count in gst_rates.items() %}
+                    <span class="badge bg-light text-dark me-1">{{ rate }}%: {{ count }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>GST Actions</h5>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('gst_reports.gst_return') }}" class="btn btn-primary">
+            <i class="fa-solid fa-file-invoice"></i> Generate GST Return
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - VIDYUT{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+  <div class="card-panel mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0">Total Profit: ₹{{ "%.2f"|format(total_profit) }}</h5>
+      <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Invoice</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Cost Price</th>
+            <th>Sell Price</th>
+            <th>Profit</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in profit_data %}
+          <tr>
+            <td>{{ item.date }}</td>
+            <td><span class="sku-badge">{{ item.invoice }}</span></td>
+            <td class="fw-bold">{{ item.product }}</td>
+            <td>{{ item.qty }}</td>
+            <td>₹{{ "%.2f"|format(item.cost_price) }}</td>
+            <td>₹{{ "%.2f"|format(item.sell_price) }}</td>
+            <td class="text-success fw-bold">₹{{ "%.2f"|format(item.profit) }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-4">No profit data found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

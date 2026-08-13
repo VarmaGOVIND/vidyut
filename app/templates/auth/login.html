@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - VIDYUT</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <a href="{{ url_for('main.landing') }}" class="text-decoration-none text-muted" style="font-size: 14px; display: inline-block; margin-bottom: 15px;">
+        <i class="fa-solid fa-arrow-left"></i> Back to Home
+      </a>
+      <div class="d-flex justify-content-center mb-3">
+        <div class="logo-bars" style="width:44px; height:40px; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); display:flex; align-items:center; justify-content:center;">
+          <i class="fa-solid fa-layer-group text-white" style="font-size:20px;"></i>
+        </div>
+      </div>
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Sign in to your VIDYUT dashboard</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+          <label class="form-label-custom">Email Address</label>
+          {{ form.email(class="form-control-custom", placeholder="name@shop.com") }}
+          {% for error in form.email.errors %}
+            <div class="text-danger" style="font-size: 12px; margin-top: 4px;">{{ error }}</div>
+          {% endfor %}
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label-custom">Password</label>
+          <div class="password-wrapper">
+            {{ form.password(class="form-control-custom", id="login-pass", placeholder="Enter your password") }}
+            <button type="button" class="password-toggle" onclick="togglePassword('login-pass', this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          {% for error in form.password.errors %}
+            <div class="text-danger" style="font-size: 12px; margin-top: 4px;">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            {{ form.remember_me(class="form-check-input", id="remember") }}
+            <label class="form-check-label" for="remember" style="font-size:13px; color:var(--text-muted);">Remember me</label>
+          </div>
+          <a href="{{ url_for('auth.forgot_password') }}" style="font-size:13px; color:#3b82f6; text-decoration:none;">Forgot Password?</a>
+        </div>
+
+        {{ form.submit(class="btn-auth-primary") }}
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

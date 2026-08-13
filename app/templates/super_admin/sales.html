@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}All Sales - Super Admin{% endblock %}
+
+{% block page_title %}All Sales{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <h2 class="display-4">₹{{ "%.2f"|format(total_revenue) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <h2 class="display-4">{{ total_orders }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>All Sales</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Shop</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Profit</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>{{ sale.invoice_no }}</td>
+                        <td>{{ sale.shop.shop_name if sale.shop else 'N/A' }}</td>
+                        <td>{{ sale.customer_name or 'Walk-in' }}</td>
+                        <td>₹{{ "%.2f"|format(sale.total_amount) }}</td>
+                        <td class="{% if sale.profit > 0 %}text-success{% else %}text-danger{% endif %}">
+                            ₹{{ "%.2f"|format(sale.profit) }}
+                        </td>
+                        <td>{{ sale.created_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}All Purchases - Super Admin{% endblock %}
+
+{% block page_title %}All Purchases{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Purchases</h5>
+                <h2 class="display-4">₹{{ "%.2f"|format(total_purchases) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>All Purchases</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Shop</th>
+                        <th>Supplier</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                    <tr>
+                        <td>{{ purchase.invoice_no or 'N/A' }}</td>
+                        <td>{{ purchase.shop.shop_name if purchase.shop else 'N/A' }}</td>
+                        <td>{{ purchase.supplier.name if purchase.supplier else 'N/A' }}</td>
+                        <td>₹{{ "%.2f"|format(purchase.total_amount) }}</td>
+                        <td>{{ purchase.payment_status }}</td>
+                        <td>{{ purchase.created_at.strftime('%d %b %Y, %I:%M %p') if purchase.created_at else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}ww

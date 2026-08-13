@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}{{ shop.shop_name }} - Super Admin{% endblock %}
+
+{% block page_title %}{{ shop.shop_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Sales</h5>
+                <h2 class="display-4">₹{{ "%.2f"|format(total_sales) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <h2 class="display-4">{{ total_orders }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Staff Members</h5>
+                <h2 class="display-4">{{ users|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Shop Details</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ shop.shop_name }}</p>
+                <p><strong>Owner:</strong> {{ shop.owner.username if shop.owner else 'N/A' }}</p>
+                <p><strong>Phone:</strong> {{ shop.phone or '-' }}</p>
+                <p><strong>Address:</strong> {{ shop.address or '-' }}</p>
+                <p><strong>Status:</strong> 
+                    <span class="badge bg-{{ 'success' if shop.is_active else 'danger' }}">
+                        {{ 'Active' if shop.is_active else 'Inactive' }}
+                    </span>
+                </p>
+                <p><strong>Maintenance:</strong> 
+                    <span class="badge bg-{{ 'warning' if shop.is_maintenance else 'secondary' }}">
+                        {{ 'ON' if shop.is_maintenance else 'OFF' }}
+                    </span>
+                </p>
+                <p><strong>Blocked:</strong> 
+                    <span class="badge bg-{{ 'danger' if shop.is_blocked else 'success' }}">
+                        {{ 'BLOCKED' if shop.is_blocked else 'Not Blocked' }}
+                    </span>
+                </p>
+                {% if shop.is_blocked %}
+                <p><strong>Block Reason:</strong> {{ shop.block_reason or 'No reason provided' }}</p>
+                <p><strong>Blocked By:</strong> {{ shop.blocked_by_user.username if shop.blocked_by_user else 'N/A' }}</p>
+                <p><strong>Blocked At:</strong> {{ shop.blocked_at.strftime('%d %b %Y, %I:%M %p') if shop.blocked_at else 'N/A' }}</p>
+                {% endif %}
+                <p><strong>Created:</strong> {{ shop.created_at.strftime('%d %b %Y') if shop.created_at else 'N/A' }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Actions</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('super_admin.toggle_maintenance', shop_id=shop.id) }}" class="mb-2">
+                    <button type="submit" class="btn btn-{{ 'warning' if not shop.is_maintenance else 'secondary' }} w-100">
+                        <i class="fa-solid fa-tools"></i> 
+                        {{ 'Enable Maintenance' if not shop.is_maintenance else 'Disable Maintenance' }}
+                    </button>
+                </form>
+
+                {% if not shop.is_blocked %}
+                <form method="POST" action="{{ url_for('super_admin.block_shop', shop_id=shop.id) }}" class="mb-2">
+                    <div class="mb-2">
+                        <input type="text" name="reason" class="form-control" placeholder="Reason for blocking (optional)" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fa-solid fa-ban"></i> Block Shop
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('super_admin.unblock_shop', shop_id=shop.id) }}" class="mb-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fa-solid fa-check-circle"></i> Unblock Shop
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Users in this Shop</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                        <span class="badge bg-primary">Admin</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Staff</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Recent Sales</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>{{ sale.invoice_no }}</td>
+                        <td>{{ sale.customer_name or 'Walk-in' }}</td>
+                        <td>₹{{ "%.2f"|format(sale.total_amount) }}</td>
+                        <td>{{ sale.created_at.strftime('%d %b %Y, %I:%M %p') if sale.created_at else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

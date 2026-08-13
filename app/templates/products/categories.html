@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Product Categories - VIDYUT{% endblock %}
+
+{% block page_title %}Product Categories{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="panel-title mb-1">All Categories</h2>
+        <p class="panel-subtitle mb-0">Select a category to manage products</p>
+    </div>
+    <a href="{{ url_for('products.add_product') }}" class="btn-quick-primary" style="width:auto; padding: 10px 20px;">
+        <i class="fa-solid fa-plus"></i> Add New Product
+    </a>
+</div>
+
+<div class="row g-4">
+    {% for cat in categories %}
+    <div class="col-md-4 col-lg-3">
+        <div class="card-panel position-relative" style="transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+
+            <button type="button"
+                    class="btn delete-category-btn"
+                    data-delete-url="{{ url_for('products.delete_category', category_name=cat.name) }}"
+                    data-delete-message="Delete entire '{{ cat.name }}' category and all {{ cat.count }} products? This action cannot be undone!"
+                    style="position: absolute; top: 12px; right: 12px; z-index: 10; background: #fee2e2; color: #dc2626; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.background='#dc2626'; this.style.color='white'"
+                    onmouseout="this.style.background='#fee2e2'; this.style.color='#dc2626'"
+                    title="Delete Category">
+                <i class="fa-solid fa-trash" style="font-size: 14px;"></i>
+            </button>
+
+            <a href="{{ url_for('products.product_list', category=cat.name) }}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="avatar-circle" style="width: 48px; height: 48px; font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338ca; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(67, 56, 202, 0.15);">
+                        {{ cat.name[0].upper() }}
+                    </div>
+                    {% if cat.low_stock > 0 %}
+                    <span class="status-badge badge-red" style="margin-right: 40px;">{{ cat.low_stock }} Low Stock</span>
+                    {% endif %}
+                </div>
+                <h4 class="fw-bold mb-1">{{ cat.name }}</h4>
+                <p class="text-muted mb-0" style="font-size: 13px;">Code: {{ cat.code }}</p>
+                <div class="mt-3 pt-3 border-top">
+                    <span class="fw-bold" style="font-size: 24px; color: #111827;">{{ cat.count }}</span>
+                    <span class="text-muted" style="font-size: 14px;">Products</span>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="card-panel text-center py-5">
+            <i class="fa-solid fa-box-open" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+            <h4 class="text-muted">No categories found</h4>
+            <p class="text-muted mb-4">Add your first product to create a category.</p>
+            <a href="{{ url_for('products.add_product') }}" class="btn-quick-primary">
+                <i class="fa-solid fa-plus"></i> Add Product
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="deleteConfirmModal" class="delete-modal-overlay">
+    <div class="delete-modal-box">
+        <div class="delete-modal-header">
+            <div class="delete-modal-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="delete-modal-title">Confirm Delete</h3>
+            <button type="button" class="delete-modal-close">&times;</button>
+        </div>
+        <div class="delete-modal-body">
+            <p class="delete-message">Are you sure?</p>
+            <p class="text-muted">This action cannot be undone.</p>
+        </div>
+        <div class="delete-modal-actions">
+            <button type="button" class="delete-modal-btn cancel">Cancel</button>
+            <button type="button" class="delete-modal-btn delete">Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/common-modal.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}VIDYUT{% endblock %}</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+  <script src="/static/js/chart.min.js"></script>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo-bars"><i class="fa-solid fa-layer-group text-white"></i></div>
+      VIDYUT
+      <button class="sidebar-close-btn" id="sidebarCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    {% if current_user.is_authenticated %}
+      <div class="nav-label">MAIN</div>
+      
+      {% if current_user.is_admin %}
+      <a href="{{ url_for('main.dashboard') }}" class="nav-link-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-grip nav-icon"></i>Dashboard
+      </a>
+      {% endif %}
+
+      {% if current_user.is_super_admin %}
+        <div class="nav-label">SUPER ADMIN</div>
+        <a href="{{ url_for('super_admin.all_shops') }}" class="nav-link-item {% if request.endpoint == 'super_admin.all_shops' %}active{% endif %}">
+          <i class="fa-solid fa-store nav-icon"></i>All Shops
+        </a>
+        <a href="{{ url_for('super_admin.all_users') }}" class="nav-link-item {% if request.endpoint == 'super_admin.all_users' %}active{% endif %}">
+          <i class="fa-solid fa-users nav-icon"></i>All Users
+        </a>
+        <a href="{{ url_for('super_admin.all_staff') }}" class="nav-link-item {% if request.endpoint == 'super_admin.all_staff' %}active{% endif %}">
+          <i class="fa-solid fa-user-gear nav-icon"></i>All Staff
+        </a>
+        <a href="{{ url_for('super_admin.all_products') }}" class="nav-link-item {% if request.endpoint == 'super_admin.all_products' %}active{% endif %}">
+          <i class="fa-solid fa-cube nav-icon"></i>All Products
+        </a>
+        <a href="{{ url_for('super_admin.all_sales') }}" class="nav-link-item {% if request.endpoint == 'super_admin.all_sales' %}active{% endif %}">
+          <i class="fa-solid fa-cart-shopping nav-icon"></i>All Sales
+        </a>
+        <a href="{{ url_for('super_admin.all_purchases') }}" class="nav-link-item {% if request.endpoint == 'super_admin.all_purchases' %}active{% endif %}">
+          <i class="fa-solid fa-truck nav-icon"></i>All Purchases
+        </a>
+        <a href="{{ url_for('super_admin.all_returns') }}" class="nav-link-item {% if request.endpoint == 'super_admin.all_returns' %}active{% endif %}">
+          <i class="fa-solid fa-rotate-left nav-icon"></i>All Returns
+        </a>
+        <a href="{{ url_for('reports.reports_list') }}" class="nav-link-item {% if request.endpoint == 'reports.reports_list' %}active{% endif %}">
+          <i class="fa-solid fa-chart-column nav-icon"></i>Reports
+        </a>
+        <a href="{{ url_for('reports.daily_profit') }}" class="nav-link-item {% if request.endpoint == 'reports.daily_profit' %}active{% endif %}">
+          <i class="fa-solid fa-calendar-day nav-icon"></i>Daily Profit
+        </a>
+        <a href="{{ url_for('reports.invoice_search') }}" class="nav-link-item {% if request.endpoint == 'reports.invoice_search' %}active{% endif %}">
+          <i class="fa-solid fa-magnifying-glass nav-icon"></i>Invoice Search
+        </a>
+        <a href="{{ url_for('staff.audit_logs') }}" class="nav-link-item {% if request.endpoint == 'staff.audit_logs' %}active{% endif %}">
+          <i class="fa-solid fa-clock-rotate-left nav-icon"></i>Audit Logs
+        </a>
+        <a href="{{ url_for('settings.shop_settings') }}" class="nav-link-item {% if request.endpoint == 'settings.shop_settings' %}active{% endif %}">
+          <i class="fa-solid fa-gear nav-icon"></i>Settings
+        </a>
+      {% endif %}
+
+      {% if current_user.is_admin and not current_user.is_super_admin %}
+        <a href="{{ url_for('products.product_list') }}" class="nav-link-item {% if request.endpoint == 'products.product_list' %}active{% endif %}">
+          <i class="fa-solid fa-cube nav-icon"></i>Products
+        </a>
+      {% endif %}
+
+      <a href="{{ url_for('billing.pos') }}" class="nav-link-item {% if request.endpoint == 'billing.pos' %}active{% endif %}">
+        <i class="fa-solid fa-cart-shopping nav-icon"></i>Sales (POS)
+      </a>
+
+      <a href="{{ url_for('products.staff_product_view') }}" class="nav-link-item {% if request.endpoint == 'products.staff_product_view' %}active{% endif %}"> <i class="fa-solid fa-cube nav-icon"></i> Staff-Products </a>
+      
+      {% if current_user.is_admin and not current_user.is_super_admin %}
+        <div class="nav-label">OPERATIONS</div>
+        <a href="{{ url_for('purchase.purchase_list') }}" class="nav-link-item {% if request.endpoint == 'purchase.purchase_list' or request.endpoint == 'purchase.add_purchase' %}active{% endif %}">
+          <i class="fa-solid fa-truck nav-icon"></i>Purchase
+        </a>
+        <a href="{{ url_for('purchase_returns.return_list') }}" class="nav-link-item {% if request.endpoint.startswith('purchase_returns.') %}active{% endif %}">
+          <i class="fa-solid fa-truck-arrow-right nav-icon"></i>Purchase Returns
+        </a>
+        
+        <a href="{{ url_for('reports.reports_list') }}" class="nav-link-item {% if request.endpoint == 'reports.reports_list' %}active{% endif %}">
+          <i class="fa-solid fa-chart-column nav-icon"></i>Reports
+        </a>
+        <a href="{{ url_for('reports.daily_profit') }}" class="nav-link-item {% if request.endpoint == 'reports.daily_profit' %}active{% endif %}">
+          <i class="fa-solid fa-calendar-day nav-icon"></i>Daily Profit
+        </a>
+        <a href="{{ url_for('suppliers.supplier_list') }}" class="nav-link-item {% if request.endpoint.startswith('suppliers.') %}active{% endif %}">
+          <i class="fa-solid fa-users nav-icon"></i>Suppliers
+        </a>
+        <a href="{{ url_for('expenses.expense_list') }}" class="nav-link-item {% if request.endpoint.startswith('expenses.') %}active{% endif %}">
+          <i class="fa-solid fa-file-invoice-dollar nav-icon"></i>Expenses
+        </a>
+        <a href="{{ url_for('returns.return_list') }}" class="nav-link-item {% if request.endpoint.startswith('returns.') %}active{% endif %}">
+          <i class="fa-solid fa-rotate-left nav-icon"></i>Sale Returns
+        </a>
+        <a href="{{ url_for('ledger.ledger_dashboard') }}" class="nav-link-item {% if request.endpoint.startswith('ledger.') %}active{% endif %}">
+          <i class="fa-solid fa-book-open nav-icon"></i>Supplier Ledger
+        </a>
+        <a href="{{ url_for('reports.invoice_search') }}" class="nav-link-item {% if request.endpoint == 'reports.invoice_search' %}active{% endif %}">
+          <i class="fa-solid fa-magnifying-glass nav-icon"></i>Invoice Search
+        </a>
+        <a href="{{ url_for('customers.customer_list') }}" class="nav-link-item {% if request.endpoint.startswith('customers.') %}active{% endif %}">
+          <i class="fa-solid fa-users nav-icon"></i>Customers
+        </a>
+        <a href="{{ url_for('export.export_sales') }}" class="nav-link-item">
+          <i class="fa-solid fa-file-export nav-icon"></i>Export to Excel
+        </a>
+        <a href="{{ url_for('import_products.import_products') }}" class="nav-link-item">
+          <i class="fa-solid fa-file-import nav-icon"></i>Import Products
+        </a>
+        <a href="{{ url_for('gst_reports.gst_dashboard') }}" class="nav-link-item">
+          <i class="fa-solid fa-file-invoice-dollar nav-icon"></i>GST Reports
+        </a>
+        
+        <div class="nav-label">ADMIN</div>
+        <a href="{{ url_for('staff.staff_list') }}" class="nav-link-item {% if request.endpoint == 'staff.staff_list' %}active{% endif %}">
+          <i class="fa-solid fa-users-gear nav-icon"></i>Staff Management
+        </a>
+        <a href="{{ url_for('staff.audit_logs') }}" class="nav-link-item {% if request.endpoint == 'staff.audit_logs' %}active{% endif %}">
+          <i class="fa-solid fa-clock-rotate-left nav-icon"></i>Audit Logs
+        </a>
+        <a href="{{ url_for('settings.shop_settings') }}" class="nav-link-item {% if request.endpoint == 'settings.shop_settings' %}active{% endif %}">
+          <i class="fa-solid fa-store nav-icon"></i>Shop Settings
+        </a>
+      {% endif %}
+    {% else %}
+      <div class="nav-label">ACCESS</div>
+      <a href="{{ url_for('auth.login') }}" class="nav-link-item"><i class="fa-solid fa-right-to-bracket nav-icon"></i>Login to Access</a>
+    {% endif %}
+
+    <div class="sidebar-bottom">
+  {% if current_user.is_authenticated %}
+    <div class="sidebar-user">
+      <div class="avatar-circle">{{ current_user.username[0].upper() }}</div>
+      <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="sidebar-icon-link" style="font-weight:500;">Logout</a>
+      <form id="logout-form" action="{{ url_for('auth.logout') }}" method="POST" style="display:none;"></form>
+    </div>
+  {% endif %}
+</div>
+  </div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+          <div class="subtitle" id="dateLine"></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('settings.profile') }}" class="user-chip dropdown" style="text-decoration:none; color:inherit;">
+            <div class="avatar-circle">{{ current_user.username[0].upper() }}</div>
+            <span class="uname">{{ current_user.username }}</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:11px; color:#94a3b8;"></i>
+          </a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="btn-quick-primary" style="width:auto; padding: 8px 16px; font-size: 14px;">
+            <i class="fa-solid fa-right-to-bracket"></i> Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="content-wrapper">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}GST Return - VIDYUT{% endblock %}
+
+{% block page_title %}GST Return{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>Total Taxable Value</h5>
+                <h2>₹{{ "%.2f"|format(total_taxable) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>Total GST</h5>
+                <h2>₹{{ "%.2f"|format(total_gst) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5>Total Sales</h5>
+                <h2>₹{{ "%.2f"|format(total_taxable + total_gst) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>GST Breakdown</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>GST Rate</th>
+                        <th>Taxable Amount</th>
+                        <th>GST</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in gst_data %}
+                    <tr>
+                        <td>{{ item.invoice }}</td>
+                        <td>{{ item.product }}</td>
+                        <td>{{ item.qty }}</td>
+                        <td>{{ item.rate }}%</td>
+                        <td>₹{{ "%.2f"|format(item.taxable) }}</td>
+                        <td>₹{{ "%.2f"|format(item.gst) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

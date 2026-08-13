@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}POS Billing - VIDYUT{% endblock %}
+
+{% block page_title %}Point of Sale{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <label class="form-label-custom">Customer (Optional)</label>
+  <div class="position-relative">
+    <input type="text" id="customerSearch" class="form-control-custom" placeholder="Search customer by name or phone..." autocomplete="off">
+    <input type="hidden" id="customerId" value="">
+    <div id="customerResults" class="position-absolute w-100 bg-white shadow-sm rounded mt-1" style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"></div>
+  </div>
+  <small class="text-muted">Leave blank for Walk-in Customer</small>
+</div>
+  <div class="row g-3">
+    <div class="col-12 col-lg-7">
+      <div class="card-panel h-100">
+        <div class="mb-3">
+          <label class="form-label-custom">Search Product (Name or SKU)</label>
+          <div class="position-relative">
+            <input type="text" id="productSearch" class="form-control-custom" placeholder="Type to search..." autocomplete="off">
+            <div id="searchResults" class="position-absolute w-100 bg-white shadow-sm rounded mt-1" style="z-index: 1000; max-height: 300px; overflow-y: auto; display: none;"></div>
+          </div>
+        </div>
+        
+        <div class="panel-title mb-3">Available Products</div>
+        <div class="table-responsive">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Name</th>
+                <th>Supplier</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody">
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">Type at least 1 character to search products.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card-panel h-100 d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="panel-title mb-0">Current Bill</div>
+          <button class="action-btn delete-btn" id="clearCartBtn" title="Clear Cart">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+
+        <div class="flex-grow-1" style="overflow-y: auto; max-height: 400px;">
+          <table class="table-custom" id="cartTable">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cartTableBody">
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">Cart is empty.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="border-top pt-3 mt-3">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal:</span>
+            <span class="fw-bold" id="cartSubtotal">0.00</span>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-2 align-items-center">
+            <span class="text-muted">Discount (₹):</span>
+            <input type="number" id="cartDiscount" class="form-control form-control-sm text-end" value="0" style="width: 100px;" min="0">
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 align-items-center">
+            <span class="text-muted">Tax (<span id="taxRateDisplay">0</span>%):</span>
+            <input type="number" id="cartTax" class="form-control form-control-sm text-end" value="0" style="width: 100px;" min="0" readonly>
+          </div>
+
+          <div class="d-flex justify-content-between mb-3" style="font-size: 18px;">
+            <span class="fw-bold">Grand Total:</span>
+            <span class="fw-bold text-primary" id="cartGrandTotal">₹0.00</span>
+          </div>
+          <button class="btn-quick-primary" id="checkoutBtn">
+            <i class="fa-solid fa-check"></i> Complete Sale & Print
+          </button>
+          <button type="button" class="btn btn-outline-primary w-100 mt-2" onclick="downloadInvoice()" id="downloadInvoiceBtn" style="display:none;">
+            <i class="fa-solid fa-download"></i> Download PDF Invoice
+          </button>
+        </div>
+
+        <script>
+          const IS_ADMIN = {{ 'true' if current_user.is_admin else 'false' }};
+          const DEFAULT_TAX_RATE = {{ shop_settings.tax_rate if shop_settings else 0.0 }};
+          document.getElementById('taxRateDisplay').innerText = DEFAULT_TAX_RATE;
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmSaleModal" class="custom-modal" style="display:none;">
+    <div class="custom-modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Purchase</h5>
+        <button class="modal-close" onclick="closeModal('confirmSaleModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Items: <span id="modalItemCount" class="fw-bold">0</span> products</p>
+        <p>Total: <span id="modalTotalAmount" class="fw-bold text-primary">₹0.00</span></p>
+        <p class="mt-3 mb-0">Are you sure you want to place this order?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('confirmSaleModal')">Edit Order</button>
+        <button class="btn btn-primary" id="proceedToPayBtn">Proceed to Pay</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="qrPaymentModal" class="custom-modal" style="display:none;">
+    <div class="custom-modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h5 class="modal-title">Scan to Pay</h5>
+        <button class="modal-close" onclick="closeModal('qrPaymentModal')">&times;</button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="qrCodeImg" src="" alt="QR Code" style="width: 200px; height: 200px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px;">
+        <p class="mt-3 mb-1">Amount: <span id="qrAmount" class="fw-bold fs-4">₹0.00</span></p>
+        <p class="text-muted" style="font-size: 13px;">Scan with any UPI App</p>
+        <div id="paymentLoading" style="display:none;" class="mt-3">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-primary fw-bold">Processing Payment...</p>
+        </div>
+      </div>
+      <div class="modal-footer" id="qrModalFooter">
+        <button class="btn btn-secondary" onclick="closeModal('qrPaymentModal')">Cancel</button>
+        <button class="btn btn-primary" id="simulatePayBtn">Simulate Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="successModal" class="custom-modal" style="display:none;">
+    <div class="custom-modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-success"><i class="fa-solid fa-circle-check"></i> Payment Successful!</h5>
+      </div>
+      <div class="modal-body text-center">
+        <p>Invoice: <span id="successInvoiceId" class="fw-bold">---</span></p>
+        <p class="text-muted">Your order has been placed successfully.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="startNewSale()">New Sale</button>
+        <button class="btn btn-primary" id="printInvoiceBtn">Print Invoice</button>
+      </div>
+    </div>
+  </div>
+    <div id="clearCartModal" class="custom-modal" style="display:none;">
+    <div class="custom-modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Clear Cart</h5>
+        <button class="modal-close" onclick="closeModal('clearCartModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to clear the entire cart?</p>
+        <p class="text-danger mt-2 mb-0"><i class="fa-solid fa-triangle-exclamation"></i> All items will be removed.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('clearCartModal')">Cancel</button>
+        <button class="btn btn-danger" id="confirmClearBtn">Clear Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/pos.js') }}"></script>
+{% endblock %}

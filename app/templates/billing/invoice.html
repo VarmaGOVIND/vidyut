@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice - {{ sale.invoice_no }}</title>
+  <style>
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      padding: 40px; 
+      color: #333; 
+      background: #fff;
+    }
+    .header { 
+      text-align: center; 
+      border-bottom: 2px solid #333; 
+      padding-bottom: 20px; 
+      margin-bottom: 30px; 
+    }
+    .header h1 { margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 1px; }
+    .header p { margin: 5px 0; font-size: 14px; color: #666; }
+    
+    .invoice-details { 
+      display: flex; 
+      justify-content: space-between; 
+      margin-bottom: 30px; 
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .invoice-details div { font-size: 14px; line-height: 1.6; }
+    
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
+    th { background-color: #333; color: white; font-weight: 600; }
+    td { text-align: right; }
+    td:first-child { text-align: left; }
+    
+    .total-section { 
+      text-align: right; 
+      font-size: 16px; 
+      margin-top: 20px;
+    }
+    .total-section p { margin: 8px 0; }
+    .grand-total { 
+      font-size: 22px; 
+      font-weight: bold; 
+      color: #2563eb; 
+      border-top: 2px solid #333;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    
+    .footer { 
+      text-align: center; 
+      margin-top: 50px; 
+      font-size: 12px; 
+      color: #888; 
+      border-top: 1px solid #ddd; 
+      padding-top: 20px; 
+    }
+    
+    .print-btn { 
+      position: fixed; 
+      top: 20px; 
+      right: 20px; 
+      padding: 12px 24px; 
+      background: #2563eb; 
+      color: white; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer; 
+      font-size: 16px; 
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .print-btn:hover { background: #1d4ed8; }
+
+    
+    @media print {
+      .print-btn { display: none !important; }
+      body { padding: 0 !important; margin: 0 !important; background: white !important; }
+      @page { size: A4; margin: 15mm; }
+      .invoice-details { background: none !important; border: 1px solid #eee !important; }
+      th { background-color: #f0f0f0 !important; color: #000 !important; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  
+  <div class="header">
+    
+    {% if shop and shop.logo %}
+      <img src="{{ shop.logo }}" alt="Shop Logo" style="max-height: 60px; margin-bottom: 10px;">
+    {% endif %}
+    <h1>{{ shop.shop_name if shop else 'VIDYUT STORE' }}</h1>
+    <p>{{ shop.address if shop else '123, Main Street, City, State - 000000' }}</p>
+    <p>
+      {% if shop and shop.phone %}Phone: {{ shop.phone }} | {% endif %}
+      {% if shop and shop.gstin %}GSTIN: {{ shop.gstin }}{% endif %}
+    </p>
+  </div>
+
+  <div class="invoice-details">
+    <div>
+      <strong>Bill To:</strong><br>
+      {{ sale.customer_name if sale.customer_name else 'Walk-in Customer' }}<br>
+      {% if sale.customer_phone %}Phone: {{ sale.customer_phone }}{% endif %}
+    </div>
+    <div style="text-align: right;">
+      <strong>Invoice No:</strong> {{ sale.invoice_no }}<br>
+      <strong>Date:</strong> {{ sale.created_at.strftime('%d-%m-%Y %I:%M %p') }}<br>
+      <strong>Payment:</strong> {{ sale.payment_method | capitalize if sale.payment_method else 'Cash' }}
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 50%;">Item Description</th>
+        <th style="width: 15%;">Qty</th>
+        <th style="width: 15%;">Price (₹)</th>
+        <th style="width: 20%;">Total (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.product.name if item.product else 'Unknown Item' }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>₹{{ "%.2f"|format(item.price) }}</td>
+        <td>₹{{ "%.2f"|format(item.price * item.quantity) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  
+  <div class="total-section">
+    <p>Subtotal: <strong>₹{{ "%.2f"|format(sale.total_amount + (sale.discount or 0) - (sale.tax or 0)) }}</strong></p>
+    
+    {% if sale.discount and sale.discount > 0 %}
+      <p>Discount: <span style="color: #dc3545;">- ₹{{ "%.2f"|format(sale.discount) }}</span></p>
+    {% endif %}
+
+    {% if sale.tax and sale.tax > 0 %}
+      <p>Tax: + ₹{{ "%.2f"|format(sale.tax) }}</p>
+    {% endif %}
+    
+    <p class="grand-total">Grand Total: ₹{{ "%.2f"|format(sale.total_amount) }}</p>
+  </div>
+
+  <div class="footer">
+    <p><strong>Thank you for your business! 🙏</strong></p>
+    <p>Goods once sold will not be taken back. Please check the bill before leaving.</p>
+    <p>This is a computer-generated invoice and does not require a signature.</p>
+  </div>
+
+</body>
+</html>

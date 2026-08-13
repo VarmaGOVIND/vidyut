@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - VIDYUT</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card register-card">
+      <div class="d-flex justify-content-center mb-3">
+        <div class="logo-bars" style="width:44px; height:40px; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); display:flex; align-items:center; justify-content:center;">
+          <i class="fa-solid fa-layer-group text-white" style="font-size:20px;"></i>
+        </div>
+      </div>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Start managing your inventory with VIDYUT</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.register') }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+          <label class="form-label-custom">Username</label>
+          {{ form.username(class="form-control-custom", placeholder="Choose a username") }}
+          {% if form.username.errors %}
+            <div class="text-danger" style="font-size: 13px; margin-top: 5px;">
+              {% for error in form.username.errors %}
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Email Address</label>
+          {{ form.email(class="form-control-custom", placeholder="name@shop.com") }}
+          {% if form.email.errors %}
+            <div class="text-danger" style="font-size: 13px; margin-top: 5px;">
+              {% for error in form.email.errors %}
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Shop Name</label>
+          {{ form.shop_name(class="form-control-custom", placeholder="Your shop/business name") }}
+          {% if form.shop_name.errors %}
+            <div class="text-danger" style="font-size: 13px; margin-top: 5px;">
+              {% for error in form.shop_name.errors %}
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Phone Number</label>
+          {{ form.phone(class="form-control-custom", placeholder="9876543210") }}
+          {% if form.phone.errors %}
+            <div class="text-danger" style="font-size: 13px; margin-top: 5px;">
+              {% for error in form.phone.errors %}
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Shop Address</label>
+          {{ form.address(class="form-control-custom", placeholder="123, Main Road, City") }}
+          {% if form.address.errors %}
+            <div class="text-danger" style="font-size: 13px; margin-top: 5px;">
+              {% for error in form.address.errors %}
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label-custom">Password</label>
+          <div class="password-wrapper">
+            {{ form.password(class="form-control-custom", id="reg-pass", placeholder="Min 6 characters") }}
+            <button type="button" class="password-toggle" onclick="togglePassword('reg-pass', this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          {% if form.password.errors %}
+            <div class="text-danger" style="font-size: 13px; margin-top: 5px;">
+              {% for error in form.password.errors %}
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Confirm Password</label>
+          <div class="password-wrapper">
+            {{ form.confirm_password(class="form-control-custom", id="reg-confirm-pass", placeholder="Re-enter password") }}
+            <button type="button" class="password-toggle" onclick="togglePassword('reg-confirm-pass', this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          {% if form.confirm_password.errors %}
+            <div class="text-danger" style="font-size: 13px; margin-top: 5px;">
+              {% for error in form.confirm_password.errors %}
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        {{ form.submit(class="btn-auth-primary") }}
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}All Shops - Super Admin{% endblock %}
+
+{% block page_title %}All Shops{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5>All Shops</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Shop Name</th>
+                        <th>Owner</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Maintenance</th>
+                        <th>Blocked</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shop in shops %}
+                    <tr>
+                        <td>{{ shop.id }}</td>
+                        <td>
+                            <a href="{{ url_for('super_admin.shop_detail', shop_id=shop.id) }}" class="text-decoration-none">
+                                {{ shop.shop_name }}
+                            </a>
+                        </td>
+                        <td>{{ shop.owner.username if shop.owner else 'N/A' }}</td>
+                        <td>{{ shop.phone or '-' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if shop.is_active else 'danger' }}">
+                                {{ 'Active' if shop.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'warning' if shop.is_maintenance else 'secondary' }}">
+                                {{ 'ON' if shop.is_maintenance else 'OFF' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'danger' if shop.is_blocked else 'success' }}">
+                                {{ 'BLOCKED' if shop.is_blocked else 'Active' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('super_admin.shop_detail', shop_id=shop.id) }}" class="btn btn-sm btn-info">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

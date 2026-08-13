@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Purchase History - VIDYUT{% endblock %}
+{% block page_title %}Purchase History{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="panel-title mb-1">Recent Purchases</h2>
+      <p class="panel-subtitle mb-0">Track stock inflow and supplier payments</p>
+    </div>
+    <a href="{{ url_for('purchase.add_purchase') }}" class="btn-quick-primary" style="width:auto; padding: 10px 20px;">
+      <i class="fa-solid fa-plus"></i> New Purchase
+    </a>
+  </div>
+
+  <div class="card-panel">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Supplier</th>
+            <th>Invoice No</th>
+            <th>Items</th>
+            <th>Total Amount</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in purchases %}
+          <tr>
+            <td>#{{ p.id }}</td>
+            <td class="fw-bold">{{ p.supplier.name if p.supplier else 'Unknown' }}</td>
+            <td>{{ p.invoice_no or 'N/A' }}</td>
+            <td>
+              {% for item in p.items %}
+                <div class="mb-1" style="font-size: 13px;">
+                  <i class="fa-solid fa-box text-muted me-1"></i>
+                  <span class="fw-bold">{{ item.product.name }}</span>
+                  <span class="text-muted"> (Qty: {{ item.quantity }})</span>
+                  <span class="badge bg-light text-dark border ms-1">{{ "%.2f"|format(item.unit_cost) }}</span>
+                </div>
+              {% endfor %}
+            </td>
+            <td class="fw-bold">{{ "%.2f"|format(p.total_amount) }}</td>
+            <td>{{ p.purchase_date.strftime('%d %b %Y, %I:%M %p') if p.purchase_date else 'N/A' }}</td>
+            <td>
+              {% if p.payment_status == 'Paid' %}
+                <span class="badge bg-success">Paid</span>
+              {% elif p.payment_status == 'Cancelled' %}
+                <span class="badge bg-dark">Cancelled</span>
+              {% else %}
+                <div class="d-flex flex-column gap-1">
+                  <span class="badge {% if p.payment_status == 'Partial' %}bg-warning text-dark{% else %}bg-danger{% endif %} mb-1">{{ p.payment_status }}</span>
+                  <form action="{{ url_for('purchase.update_purchase_status', id=p.id) }}" method="POST" style="display:inline;" onsubmit="event.preventDefault(); showConfirmModal('Confirm Payment', 'Mark this bill as fully Paid?', this);">
+                    <input type="hidden" name="status" value="Paid">
+                    <button type="submit" class="btn btn-sm btn-success py-0">
+                      <i class="fa-solid fa-check"></i> Pay
+                    </button>
+                  </form>
+                  <form action="{{ url_for('purchase.update_purchase_status', id=p.id) }}" method="POST" style="display:inline;" onsubmit="event.preventDefault(); showConfirmModal('Confirm Cancellation', 'Cancel this bill? Pending balance will be 0.', this);">
+                    <input type="hidden" name="status" value="Cancelled">
+                    <button type="submit" class="btn btn-sm btn-outline-dark py-0">
+                    <i class="fa-solid fa-ban"></i> Cancel
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-4">No purchase records found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+    <!-- Custom Confirmation Modal -->
+  <div id="confirmModal" class="custom-modal" style="display:none;">
+    <div class="custom-modal-content">
+      <div class="custom-modal-header">
+        <h5 id="modalTitle">Confirm Action</h5>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="custom-modal-body">
+        <p id="modalMessage">Are you sure?</p>
+      </div>
+      <div class="custom-modal-footer">
+        <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-modal-confirm" id="confirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .custom-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .custom-modal-content {
+      background: #1e293b;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+    }
+    .custom-modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .custom-modal-header h5 {
+      margin: 0;
+      color: #f1f5f9;
+      font-size: 18px;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover {
+      color: #f1f5f9;
+    }
+    .custom-modal-body {
+      padding: 20px;
+      color: #cbd5e1;
+      font-size: 15px;
+    }
+    .custom-modal-footer {
+      padding: 20px;
+      border-top: 1px solid #334155;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .btn-modal-cancel {
+      padding: 10px 20px;
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-modal-cancel:hover {
+      background: #475569;
+    }
+    .btn-modal-confirm {
+      padding: 10px 20px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn-modal-confirm:hover {
+      background: #059669;
+    }
+  </style>
+
+  <script>
+    let currentForm = null;
+    
+    function showConfirmModal(title, message, formElement) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalMessage').innerText = message;
+      currentForm = formElement;
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+      currentForm = null;
+    }
+    
+    document.getElementById('confirmBtn').onclick = function() {
+      if (currentForm) {
+        currentForm.submit();
+      }
+      closeModal();
+    };
+    
+    
+    document.getElementById('confirmModal').onclick = function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    };
+  </script>
+{% endblock %}

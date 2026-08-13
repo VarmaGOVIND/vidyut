@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Process Return - VIDYUT{% endblock %}
+{% block page_title %}Process Sale Return{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card-panel">
+        <form method="POST" id="returnForm">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Search Invoice No.</label>
+            <div class="input-group">
+              <input type="text" id="invoiceSearch" class="form-control" placeholder="Enter Invoice Number (e.g., INV-001)">
+              <button type="button" class="btn btn-primary" onclick="loadInvoice()">Load</button>
+            </div>
+          </div>
+
+          <div id="invoiceDetails" style="display:none;">
+            <input type="hidden" name="sale_id" id="saleId">
+            <div class="alert alert-info">
+              <strong>Invoice:</strong> <span id="dispInvoice"></span> | 
+              <strong>Date:</strong> <span id="dispDate"></span>
+            </div>
+
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Sold Qty</th>
+                  <th>Price</th>
+                  <th>Return Qty</th>
+                </tr>
+              </thead>
+              <tbody id="returnItemsBody"></tbody>
+            </table>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Return Reason</label>
+              <textarea name="reason" class="form-control" rows="2" placeholder="e.g., Defective item, wrong size"></textarea>
+            </div>
+
+            <input type="hidden" name="return_items" id="returnItemsJson">
+            <button type="submit" class="btn btn-danger w-100">
+              <i class="fa-solid fa-check"></i> Process Return & Refund
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadInvoice() {
+      const inv = document.getElementById('invoiceSearch').value.trim();
+      if(!inv) return alert('Enter invoice number');
+      
+      fetch(`/billing/api/sale_by_invoice?invoice=${encodeURIComponent(inv)}`)
+        .then(res => res.json())
+        .then(data => {
+          if(data.error) {
+            alert(data.error);
+            document.getElementById('invoiceDetails').style.display = 'none';
+            return;
+          }
+          document.getElementById('saleId').value = data.id;
+          document.getElementById('dispInvoice').innerText = data.invoice_no;
+          document.getElementById('dispDate').innerText = data.date;
+          document.getElementById('invoiceDetails').style.display = 'block';
+          
+          const tbody = document.getElementById('returnItemsBody');
+          tbody.innerHTML = '';
+          data.items.forEach((item, idx) => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${item.name}</td>
+                <td>${item.qty}</td>
+                <td>₹${item.price.toFixed(2)}</td>
+                <td>
+                  <input type="number" class="form-control return-qty" 
+                         data-id="${item.product_id}" data-price="${item.price}" 
+                         data-max="${item.qty}" min="0" max="${item.qty}" value="0"
+                         onchange="validateQty(this)">
+                </td>
+              </tr>
+            `;
+          });
+        });
+    }
+
+    function validateQty(input) {
+      const max = parseInt(input.getAttribute('data-max'));
+      if(parseInt(input.value) > max) {
+        alert('Return quantity cannot exceed sold quantity!');
+        input.value = max;
+      }
+      if(parseInt(input.value) < 0) input.value = 0;
+    }
+
+    document.getElementById('returnForm').addEventListener('submit', function(e) {
+      const items = [];
+      document.querySelectorAll('.return-qty').forEach(input => {
+        const qty = parseInt(input.value);
+        if(qty > 0) {
+          items.push({
+            product_id: parseInt(input.getAttribute('data-id')),
+            return_qty: qty,
+            price: parseFloat(input.getAttribute('data-price'))
+          });
+        }
+      });
+      
+      if(items.length === 0) {
+        e.preventDefault();
+        alert('Please enter return quantity for at least one item.');
+      } else {
+        document.getElementById('returnItemsJson').value = JSON.stringify(items);
+      }
+    });
+  </script>
+{% endblock %}

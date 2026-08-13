@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Shop Settings - VIDYUT{% endblock %}
+
+{% block page_title %}Shop Settings{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>General Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Shop Name</label>
+                        {{ form.shop_name(class="form-control", placeholder="Enter shop name") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        {{ form.address(class="form-control", placeholder="Enter shop address") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        {{ form.phone(class="form-control", placeholder="Enter phone number") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">GSTIN</label>
+                        {{ form.gstin(class="form-control", placeholder="Enter GSTIN") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tax Rate (%)</label>
+                        {{ form.tax_rate(class="form-control", placeholder="0.0") }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-save"></i> Save Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5>Shop Status</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Status:</strong> 
+                    <span class="badge bg-{{ 'success' if shop and shop.is_active else 'danger' }}">
+                        {{ 'Active' if shop and shop.is_active else 'Inactive' }}
+                    </span>
+                </p>
+                <p><strong>Maintenance:</strong> 
+                    <span class="badge bg-{{ 'warning' if shop and shop.is_maintenance else 'secondary' }}">
+                        {{ 'ON' if shop and shop.is_maintenance else 'OFF' }}
+                    </span>
+                </p>
+                {% if shop and shop.is_blocked %}
+                <div class="alert alert-danger mt-2">
+                    <i class="fa-solid fa-ban"></i> 
+                    <strong>Shop Blocked:</strong> Contact system administrator.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if shop %}
+        <div class="card">
+            <div class="card-header">
+                <h5>Maintenance Mode</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.toggle_maintenance') }}">
+                    <div class="mb-3">
+                        <p class="text-muted">When enabled, customers will see "Under Maintenance" message.</p>
+                    </div>
+                    <button type="submit" class="btn btn-{{ 'warning' if not shop.is_maintenance else 'secondary' }} w-100">
+                        <i class="fa-solid fa-tools"></i> 
+                        {{ 'Enable Maintenance' if not shop.is_maintenance else 'Disable Maintenance' }}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

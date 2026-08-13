@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Process Purchase Return - VIDYUT{% endblock %}
+{% block page_title %}Process Purchase Return{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-panel">
+            <form method="POST" id="returnForm">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Supplier</label>
+                    <div class="input-group">
+                        <select name="supplier_id" id="supplierSelect" class="form-control" required>
+                            <option value="">-- Select Supplier --</option>
+                            {% for s in suppliers %}
+                                <option value="{{ s.id }}" {% if selected_supplier and selected_supplier.id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-primary" onclick="loadBatches()">Load Batches</button>
+                    </div>
+                </div>
+
+                <div id="batchDetails" style="display:none;">
+                    <div class="alert alert-info">
+                        <strong>Supplier:</strong> <span id="dispSupplier"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Return Reason</label>
+                        <select name="reason" class="form-control">
+                            <option value="Defective">Defective / Damaged</option>
+                            <option value="Wrong Item">Wrong Item Received</option>
+                            <option value="Extra Ordered">Extra Ordered</option>
+                            <option value="Quality Issue">Quality Issue</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <h5 class="fw-bold mt-3">Available Batches</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty Remaining</th>
+                                    <th>Purchase Rate</th>
+                                    <th>Return Qty</th>
+                                    <th>Return Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batchesBody">
+                                <tr><td colspan="5" class="text-center text-muted py-4">Select supplier and click Load Batches</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <input type="hidden" name="return_items" id="returnItemsJson">
+                    <button type="submit" class="btn btn-warning w-100 fw-bold mt-3">
+                        <i class="fa-solid fa-check"></i> Process Return
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadBatches() {
+    const supplierId = document.getElementById('supplierSelect').value;
+    if(!supplierId) {
+        alert('Please select a supplier first');
+        return;
+    }
+    
+    const supplierName = document.getElementById('supplierSelect').options[document.getElementById('supplierSelect').selectedIndex].text;
+    
+    fetch(`/purchase-returns/api/batches/${supplierId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('batchDetails').style.display = 'block';
+            document.getElementById('dispSupplier').innerText = supplierName;
+            
+            const tbody = document.getElementById('batchesBody');
+            tbody.innerHTML = '';
+            if(data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No active batches found for this supplier.</td></tr>';
+                return;
+            }
+            data.forEach((batch, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${batch.product_name}</td>
+                        <td class="fw-bold">${batch.qty_remaining}</td>
+                        <td>₹${batch.purchase_rate.toFixed(2)}</td>
+                        <td>
+                            <input type="number" class="form-control return-qty" 
+                                   data-batch-id="${batch.batch_id}" 
+                                   data-index="${index}"
+                                   data-max="${batch.qty_remaining}" 
+                                   min="0" max="${batch.qty_remaining}" value="0"
+                                   onchange="calculateTotal(${index})">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control return-rate" 
+                                   data-index="${index}"
+                                   value="${batch.purchase_rate}" step="0.01" min="0"
+                                   onchange="calculateTotal(${index})">
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => {
+            alert('Error loading batches');
+            console.error(err);
+        });
+}
+
+function calculateTotal(index) {
+    const qtyInput = document.querySelector(`.return-qty[data-index="${index}"]`);
+    const rateInput = document.querySelector(`.return-rate[data-index="${index}"]`);
+    const qty = parseInt(qtyInput.value) || 0;
+    const rate = parseFloat(rateInput.value) || 0;
+    const total = qty * rate;
+    // Optional: show total in a new column or update something
+}
+
+document.getElementById('returnForm').addEventListener('submit', function(e) {
+    const items = [];
+    document.querySelectorAll('.return-qty').forEach((input, index) => {
+        const qty = parseInt(input.value);
+        if(qty > 0) {
+            const rateInput = document.querySelector(`.return-rate[data-index="${index}"]`);
+            const rate = parseFloat(rateInput.value) || 0;
+            items.push({
+                batch_id: parseInt(input.getAttribute('data-batch-id')),
+                return_qty: qty,
+                return_rate: rate
+            });
+        }
+    });
+    
+    if(items.length === 0) {
+        e.preventDefault();
+        alert('Please enter return quantity for at least one item.');
+    } else {
+        document.getElementById('returnItemsJson').value = JSON.stringify(items);
+    }
+});
+</script>
+{% endblock %}

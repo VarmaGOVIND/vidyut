@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Add Product - VIDYUT{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block content %}
+  <div class="card-panel" style="max-width: 800px; margin: 0 auto;">
+    <form method="POST" action="{{ url_for('products.add_product') }}">
+      <div class="row g-3">
+        
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Product Name</label>
+          <input type="text" name="name" id="productNameInput" class="form-control-custom" value="{{ product_name or '' }}" required placeholder="e.g., Product Name" oninput="checkProduct()">
+          <div id="categorySuggestion" style="display:none; margin-top:5px; padding:8px; background:#e3f2fd; border-radius:4px; color:#1e40af; font-size:13px;">
+            <i class="fa-solid fa-lightbulb"></i> Found in: <span id="suggestedCategory"></span> (Code: <span id="suggestedCode"></span>)
+            <button type="button" class="btn btn-sm btn-link" onclick="applySuggestion()">Apply</button>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Category Name</label>
+          <input type="text" name="category" class="form-control-custom" value="{{ category or '' }}" required placeholder="e.g., Electronic">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Category Code</label>
+          <input type="text" name="category_code" class="form-control-custom" value="{{ category_code or '' }}" required pattern="[A-Za-z0-9]+" placeholder="e.g., ELEC or 08">
+          <small class="text-muted">SKU will be auto-generated (e.g., ELEC-001)</small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Selling Price (₹)</label>
+          <input type="number" step="0.01" name="selling_price" class="form-control-custom" required placeholder="0.00">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Cost Price (₹)</label>
+          <input type="number" step="0.01" name="cost_price" class="form-control-custom" required placeholder="0.00">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Expiry Date</label>
+          <input type="date" name="expiry_date" class="form-control-custom">
+          <small class="text-muted">Leave blank if no expiry</small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Initial Stock</label>
+          <input type="number" name="stock" class="form-control-custom" value="0" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Min Stock Alert Level</label>
+          <input type="number" name="min_stock" class="form-control-custom" value="5" required>
+          <small class="text-muted">Alert when stock falls below this number.</small>
+        </div>
+
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn-quick-primary" style="width: auto;">
+          <i class="fa-solid fa-save"></i> Save Product
+        </button>
+        <a href="{{ url_for('products.product_list') }}" class="btn-quick-secondary" style="width: auto; background: #f3f4f6; color: #374151;">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+  let suggestedCat = '';
+  let suggestedCode = '';
+
+  function checkProduct() {
+    const name = document.getElementById('productNameInput').value;
+    if (name.length < 2) {
+      document.getElementById('categorySuggestion').style.display = 'none';
+      return;
+    }
+    
+    fetch(`/products/api/check-product?name=${encodeURIComponent(name)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.exists) {
+          suggestedCat = data.category;
+          suggestedCode = data.category_code;
+          document.getElementById('suggestedCategory').innerText = suggestedCat;
+          document.getElementById('suggestedCode').innerText = suggestedCode;
+          document.getElementById('categorySuggestion').style.display = 'block';
+        } else {
+          document.getElementById('categorySuggestion').style.display = 'none';
+        }
+      });
+  }
+
+  function applySuggestion() {
+    document.querySelector('input[name="category"]').value = suggestedCat;
+    document.querySelector('input[name="category_code"]').value = suggestedCode;
+    document.getElementById('categorySuggestion').style.display = 'none';
+  }
+  </script>
+{% endblock %}

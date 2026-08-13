@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Edit Product - VIDYUT{% endblock %}
+{% block page_title %}Edit Product{% endblock %}
+{% block content %}
+  <div class="card-panel" style="max-width: 800px; margin: 0 auto;">
+    <form method="POST" action="{{ url_for('products.edit_product', product_id=product.id) }}">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Product Name</label>
+          <input type="text" name="name" class="form-control-custom" value="{{ product.name }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Category Name</label>
+          <input type="text" name="category" class="form-control-custom" value="{{ product.category }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Category Code</label>
+          <input type="text" name="category_code" class="form-control-custom" value="{{ product.category_code }}" required pattern="[A-Za-z0-9]+">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Selling Price (₹)</label>
+          <input type="number" step="0.01" name="selling_price" class="form-control-custom" value="{{ product.selling_price }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Cost Price (₹)</label>
+          <input type="number" step="0.01" name="cost_price" class="form-control-custom" value="{{ product.cost_price }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Current Stock</label>
+          <input type="number" name="stock" class="form-control-custom" value="{{ product.stock }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Min Stock Alert Level</label>
+          <input type="number" name="min_stock" class="form-control-custom" value="{{ product.min_stock }}" required>
+        </div>
+      </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Expiry Date</label>
+          <input type="date" name="expiry_date" class="form-control-custom" value="{{ product.expiry_date.strftime('%Y-%m-%d') if product.expiry_date else '' }}">
+          <small class="text-muted">Leave blank if no expiry</small>
+        </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn-quick-primary" style="width: auto;">
+          <i class="fa-solid fa-save"></i> Update Product
+        </button>
+        <a href="{{ url_for('products.product_list', category=product.category) }}" class="btn-quick-secondary" style="width: auto; background: #f3f4f6; color: #374151;">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Register - VIDYUT</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="d-flex justify-content-center mb-3">
+                <div class="logo-bars" style="width:44px; height:40px; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); display:flex; align-items:center; justify-content:center;">
+                    <i class="fa-solid fa-layer-group text-white" style="font-size:20px;"></i>
+                </div>
+            </div>
+            <h1 class="auth-title">Super Admin Registration</h1>
+            <p class="auth-subtitle">Create a new Super Admin account</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label-custom">Username</label>
+                    <input type="text" name="username" class="form-control-custom" placeholder="Choose a username" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-custom">Email</label>
+                    <input type="email" name="email" class="form-control-custom" placeholder="name@example.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-custom">Password</label>
+                    <input type="password" name="password" class="form-control-custom" placeholder="Min 6 characters" required minlength="6">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-custom">Secret Key</label>
+                    <input type="password" name="secret_key" class="form-control-custom" placeholder="Enter super admin secret key" required>
+                </div>
+                <button type="submit" class="btn-auth-primary">Create Super Admin</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="{{ url_for('auth.login') }}">Back to Login</a>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

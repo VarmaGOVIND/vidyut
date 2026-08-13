@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{% if supplier %}Edit Supplier{% else %}Add New Supplier{% endif %} - VIDYUT{% endblock %}
+{% block page_title %}{% if supplier %}Edit Supplier{% else %}Add New Supplier{% endif %}{% endblock %}
+{% block content %}
+  <div class="card-panel" style="max-width: 600px; margin: 0 auto;">
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Supplier Name</label>
+          <input type="text" name="name" class="form-control-custom" required value="{{ supplier.name if supplier else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Phone</label>
+          <input type="text" name="phone" class="form-control-custom" value="{{ supplier.phone if supplier else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Email</label>
+          <input type="email" name="email" class="form-control-custom" value="{{ supplier.email if supplier else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">GSTIN</label>
+          <input type="text" name="gstin" class="form-control-custom" value="{{ supplier.gstin if supplier else '' }}">
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-bold">Address</label>
+          <textarea name="address" class="form-control-custom" rows="3">{{ supplier.address if supplier else '' }}</textarea>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn-quick-primary" style="width: auto;">
+          <i class="fa-solid fa-save"></i> Save Supplier
+        </button>
+        <a href="{{ url_for('suppliers.supplier_list') }}" class="btn-quick-secondary" style="width: auto; background: #f3f4f6; color: #374151;">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

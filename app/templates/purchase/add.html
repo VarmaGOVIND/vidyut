@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}New Purchase Entry - VIDYUT{% endblock %}
+{% block page_title %}New Purchase Entry{% endblock %}
+{% block content %}
+  <form method="POST" id="purchaseForm">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card-panel">
+          <h5 class="fw-bold mb-3">1. Supplier Details</h5>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Select Supplier</label>
+              <input type="text" id="supplierSearch" class="form-control-custom" placeholder="Type supplier name..." autocomplete="off">
+              <input type="hidden" name="supplier_id" id="supplierId" required>
+              <div id="supplierDropdown" class="dropdown-menu-custom"></div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Invoice Number</label>
+              <input type="text" name="invoice_no" class="form-control-custom" placeholder="INV-001">
+            </div>
+          </div>
+        </div>
+
+        <div class="card-panel mt-3">
+          <h5 class="fw-bold mb-3">2. Add Products</h5>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Search Product</label>
+              <input type="text" id="productSearch" class="form-control-custom" placeholder="Type product name or SKU..." autocomplete="off">
+              <div id="productDropdown" class="dropdown-menu-custom"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-panel mt-3">
+          <h5 class="fw-bold mb-3">3. Purchase Cart</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Expiry Date</th>
+                  <th>Qty</th>
+                  <th>Rate (₹)</th>
+                  <th>Total (₹)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="cartTableBody">
+                <tr id="emptyCartRow">
+                  <td colspan="5" class="text-center text-muted py-4">Cart is empty. Search and add products above.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card-panel">
+          <h5 class="fw-bold mb-3">4. Invoice Summary</h5>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Purchase Date</label>
+              <input type="date" name="purchase_date" class="form-control-custom" value="{{ datetime.utcnow().strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Payment Status</label>
+              <select name="payment_status" class="form-control-custom">
+                <option value="Paid">Paid</option>
+                <option value="Partial">Partial</option>
+                <option value="Unpaid">Unpaid</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Notes (Optional)</label>
+              <textarea name="notes" class="form-control-custom" rows="2"></textarea>
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+            <span>Total Investment:</span>
+            <span id="grandTotalDisplay">₹0.00</span>
+          </div>
+          <input type="hidden" name="cart_items" id="cartItemsInput">
+          <button type="submit" class="btn-quick-primary w-100" id="completePurchaseBtn" disabled>
+            <i class="fa-solid fa-check"></i> Complete Purchase
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  
+  <div id="newProductModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; padding:25px; border-radius:8px; width:400px; max-width:90%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <h5 class="fw-bold mb-3">Create New Product</h5>
+      <div class="mb-3">
+        <label class="form-label fw-bold">Product Name</label>
+        <input type="text" id="newProdName" class="form-control" readonly>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-bold">Category</label>
+        <input type="text" id="newProdCategory" class="form-control" list="categoryList" placeholder="Select or type new category">
+        <datalist id="categoryList">
+          {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </datalist>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-bold">Purchase Rate (Cost Price)</label>
+        <input type="number" id="newProdRate" class="form-control" step="0.01" min="0" placeholder="0.00">
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-secondary" onclick="closeNewProductModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="confirmNewProduct()">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/purchase.js') }}"></script>
+{% endblock %}
